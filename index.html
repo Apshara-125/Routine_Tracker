@@ -4,9 +4,252 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Routine Tracker</title>
-  <link rel="stylesheet" href="styles.css"/>
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Google Fonts for pastel, contrast look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css?family=Baloo+2:700|Quicksand:500,700|Caveat:600|Montserrat:600|Fira+Mono:500"
+        rel="stylesheet">
+  <style>
+    /* === Import Google Fonts for Variety === */
+    /* Already handled above */
+
+    /* === Animated Pastel Background Image === */
+    body {
+      min-height: 100vh;
+      font-family: 'Quicksand', Arial, sans-serif;
+      background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80') center center/cover no-repeat fixed;
+      position: relative;
+      overflow-x: hidden;
+      color: #372948;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      z-index: -1;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(120deg, #ffe6fa99 0%, #e0f7fa99 50%, #ffe09f99 100%);
+      animation: gradientMove 18s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    .container {
+      max-width: 620px;
+      margin: 2rem auto;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      box-shadow: 0 8px 33px 0 #ffd6d999, 0 2px 12px 0 #dce3f299;
+      padding: 2rem 1.2rem 2.5rem 1.2rem;
+      opacity: 1;
+      animation: containerPop 1.1s cubic-bezier(.53,.02,.2,1.01);
+    }
+
+    @keyframes containerPop {
+      0% { opacity:0; transform: scale(.96);}
+      100% { opacity:1; transform: scale(1);}
+    }
+
+    h1 {
+      font-family: 'Baloo 2', cursive;
+      text-align: center;
+      letter-spacing: 2px;
+      font-size: 2.4rem;
+      color: #7a5eb4;
+      text-shadow: 1px 2px 8px #fff5, 0 1px 0 #f6c1ff;
+      margin-bottom: 1.2rem;
+      font-weight: 700;
+    }
+
+    form#routine-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      background: #ffe6fa88;
+      border-radius: 13px;
+      box-shadow: 0 1px 10px #fcdff172;
+      margin-bottom: 1.4rem;
+      padding: 1.1rem .7rem;
+      font-family: 'Quicksand', Arial, sans-serif;
+      transition: box-shadow 0.2s;
+      animation: popIn 0.8s cubic-bezier(.5,.1,.1,1) both;
+    }
+    form input, form button {
+      font-family: 'Quicksand', Arial, sans-serif;
+      font-size: 1rem;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+    }
+    form input[type="text"], form input[type="datetime-local"] {
+      background: #fffdfb;
+      color: #724d86;
+      border: 1px solid #ffb8e18a;
+      font-family: 'Montserrat', Arial, sans-serif;
+      transition: box-shadow 0.12s;
+    }
+    form input[type="text"]:focus, form input[type="datetime-local"]:focus {
+      box-shadow: 0 1px 7px #ceadee8a;
+    }
+    form button {
+      background: #f5b3c7;
+      color: #685380;
+      font-family: 'Baloo 2', cursive;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #f89fast;
+      transition: transform 0.11s, box-shadow 0.19s;
+    }
+    form button:hover {
+      background: #a5dee5;
+      color: #563587;
+      transform: scale(1.05);
+      box-shadow: 0 2px 18px #f399c173;
+    }
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(.92) translateY(-18px);}
+      100% { opacity: 1; transform: none;}
+    }
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 16px;
+      margin-bottom: 1rem;
+      font-size: 1.06rem;
+      background: #a5dee588;
+      padding: .8rem 1rem;
+      border-radius: 11px;
+      font-family: 'Montserrat', Arial, sans-serif;
+      box-shadow: 0 1px 10px #d0a6fd2a;
+      color: #4f4153;
+      animation: popIn 0.9s cubic-bezier(.5,.1,.1,1) both;
+    }
+    .filters label {
+      color: #6d4398;
+      font-family: 'Baloo 2', cursive;
+    }
+    .filters input[type="text"], .filters input[type="date"] {
+      background: #fffbe8da;
+      color: #854cad;
+      border: 1px solid #ffe6faaa;
+      padding: 5px 10px;
+      border-radius: 7px;
+    }
+    .filters button {
+      background: #fff59c;
+      color: #62537b;
+      font-weight: bold;
+      border-radius: 8px;
+      border: 1px solid #ffd6e289;
+      font-family: 'Caveat', cursive;
+      font-size: 1.14rem;
+      transition: background 0.15s;
+    }
+    .filters button:hover {
+      background: #b6e8f3;
+      color: #744f7a;
+    }
+    #routine-list {
+      list-style: none;
+      min-height: 56px;
+      margin-bottom: 1.5rem;
+      padding: 0;
+    }
+    .routine-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(90deg, #f9ecd5f1 60%, #e0f7faee 100%);
+      color: #533e4d;
+      padding: 15px 20px;
+      margin-bottom: 14px;
+      border-radius: 12px;
+      box-shadow: 0 1px 10px 0 #e4bfff2a;
+      font-family: 'Quicksand', Arial, sans-serif;
+      font-weight: 500;
+      transition: box-shadow 0.2s, background 0.26s;
+      opacity: 0.98;
+      position: relative;
+      overflow: hidden;
+      animation: fadeinList 0.66s cubic-bezier(.4,.2,.3,1) both;
+    }
+    @keyframes fadeinList {
+      0% { opacity: 0; transform: translateY(18px) scale(0.95);}
+      90% { opacity: 1; transform: translateY(-6px) scale(1.01);}
+      100% { opacity: 1; transform: none; }
+    }
+    .routine-item strong {
+      color: #7a5eb4;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-weight: 900;
+      font-size: 1.04em;
+    }
+    .routine-item em {
+      font-family: 'Fira Mono', monospace;
+      font-size: 0.94em;
+      color: #b772cb;
+      margin-top: 2px;
+    }
+    .routine-item small {
+      font-family: 'Caveat', cursive;
+      color: #876791;
+      font-size: 0.98em;
+    }
+    .routine-item button {
+      background: #a5dee5;
+      color: #412c4b;
+      border: none;
+      padding: 5px 13px;
+      margin-left: 7px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 1.02em;
+      font-family: 'Caveat', cursive;
+      font-weight: 700;
+      transition: background 0.12s;
+    }
+    .routine-item button.edit-btn {
+      background: #ffd6e2;
+      color: #895eb4;
+      font-family: 'Baloo 2', cursive;
+    }
+    .routine-item button.delete-btn:hover {
+      background: #ffababa8;
+      color: #fff;
+    }
+    .routine-item button.edit-btn:hover {
+      background: #ffe09f;
+      color: #624174;
+    }
+    .chart-container {
+      background: #fffbeeee;
+      padding: 1rem;
+      border-radius: 18px;
+      box-shadow: 0 2px 22px #fcdff172;
+      margin-bottom: 1rem;
+      margin-top: 1rem;
+      animation: popIn 1s cubic-bezier(.5,.1,.2,1) both;
+    }
+    .chart-container canvas {
+      max-width: 100% !important;
+    }
+    @media (max-width: 600px) {
+      .container { margin-top: .25rem; }
+      .chart-container { padding: .5rem; }
+      form#routine-form { flex-direction: column; gap: 10px; }
+      .filters { flex-direction: column; gap: 5px 0;}
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -14,6 +257,7 @@
     <!-- Routine Input Form -->
     <form id="routine-form" class="animated">
       <input type="text" id="routine-name" placeholder="Routine Name" required>
+      <input type="text" id="student-name" placeholder="Student Name (optional)">
       <input type="datetime-local" id="routine-datetime" required>
       <button type="submit" id="submit-btn">Add Routine</button>
       <button type="button" id="cancel-edit-btn" style="display:none">Cancel</button>
@@ -60,16 +304,14 @@
     const filterDate = document.getElementById('filter-date');
     const filterName = document.getElementById('filter-name');
     const clearFilters = document.getElementById('clear-filters');
+    const studentName = document.getElementById('student-name');
     let editId = null;
-
-    // --- Chart ---
     let chart = null;
 
     // --- Render Functions ---
     function renderRoutines() {
       let routines = getRoutines();
 
-      // Apply filters
       if (filterDate.value) {
         routines = routines.filter(r =>
           r.datetime.startsWith(filterDate.value)
@@ -81,12 +323,10 @@
         );
       }
 
-      // Sort by datetime
       routines.sort((a, b) =>
         new Date(a.datetime) - new Date(b.datetime)
       );
 
-      // Render
       routineList.innerHTML = "";
       routines.forEach(routine => {
         const li = document.createElement('li');
@@ -95,6 +335,7 @@
           <span>
             <strong>${routine.name}</strong>
             <em>${new Date(routine.datetime).toLocaleString()}</em>
+            ${routine.studentName ? `<small>👤 ${routine.studentName}</small>` : ""}
           </span>
           <div>
             <button class="edit-btn" data-id="${routine.id}">Edit</button>
@@ -108,12 +349,8 @@
       updateChart();
     }
 
-    // --- Chart Update ---
     function updateChart() {
-      // We'll plot a bar graph: date (by day) vs. routine counts that day
       const routines = getRoutines();
-
-      // Group and count by date (ignoring time)
       const counts = {};
       for (const r of routines) {
         const date = r.datetime.slice(0, 10);
@@ -121,6 +358,8 @@
       }
       const labels = Object.keys(counts).sort();
       const data = labels.map(d => counts[d]);
+
+      if (!document.getElementById('routineChart')) return;
 
       if (chart) {
         chart.data.labels = labels;
@@ -162,24 +401,28 @@
       e.preventDefault();
       const name = routineName.value.trim();
       const datetime = routineDateTime.value;
+      const student = studentName ? studentName.value.trim() : '';
       if (!name || !datetime) return;
 
       let routines = getRoutines();
 
       if (editId) {
-        // Edit
         routines = routines.map(r =>
-          r.id === editId ? { ...r, name, datetime } : r
+          r.id === editId ?
+            { ...r, name, datetime, ...(studentName ? {studentName: student} : {}) }
+            : r
         );
       } else {
-        // Add
-        routines.push({
+        const newRoutine = {
           id: Date.now().toString(),
           name,
-          datetime,
-        });
+          datetime
+        };
+        if (studentName) newRoutine.studentName = student;
+        routines.push(newRoutine);
       }
       setRoutines(routines);
+
       renderRoutines();
       routineForm.reset();
       editId = null;
@@ -195,6 +438,7 @@
         if (routine) {
           routineName.value = routine.name;
           routineDateTime.value = routine.datetime;
+          if (studentName) studentName.value = routine.studentName || '';
           editId = id;
           submitBtn.textContent = "Update Routine";
           cancelEditBtn.style.display = "inline-block";
@@ -209,35 +453,37 @@
       }
     };
 
-    cancelEditBtn.onclick = () => {
-      routineForm.reset();
-      editId = null;
-      submitBtn.textContent = "Add Routine";
-      cancelEditBtn.style.display = "none";
-    };
+    if (cancelEditBtn) {
+      cancelEditBtn.onclick = () => {
+        routineForm.reset();
+        editId = null;
+        submitBtn.textContent = "Add Routine";
+        cancelEditBtn.style.display = "none";
+      };
+    }
 
-    // --- Filters ---
     [filterDate, filterName].forEach(input => {
       input.addEventListener('input', renderRoutines);
     });
-    clearFilters.onclick = () => {
-      filterDate.value = '';
-      filterName.value = '';
-      renderRoutines();
-    };
+    if (clearFilters) {
+      clearFilters.onclick = () => {
+        filterDate.value = '';
+        filterName.value = '';
+        renderRoutines();
+      };
+    }
 
     function animateList() {
-      // Animate each list item
       document.querySelectorAll(".routine-item").forEach((el, i) => {
         el.style.animationDelay = `${i * 75}ms`;
         el.classList.remove("fade-in");
-        void el.offsetWidth; // trigger reflow
+        void el.offsetWidth;
         el.classList.add("fade-in");
       });
     }
 
-    // --- On load ---
     renderRoutines();
+    window.renderRoutines = renderRoutines;
   </script>
 </body>
 </html>
